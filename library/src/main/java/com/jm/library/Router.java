@@ -1,7 +1,6 @@
 package com.jm.library;
 
 import android.content.Context;
-import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.util.Log;
 
@@ -50,20 +49,16 @@ public class Router {
         }
     }
 
-    private Router() {
-    }
-
     public static Router get() {
         return Singleton.sInstance;
     }
 
-    public void navigation(Context context, String path) {
-        Class clz = routeMap.get(path);
-        try {
-            Intent intent = new Intent(context, clz);
-            context.startActivity(intent);
-        } catch (Exception e) {
-            Log.e(TAG, e.getMessage());
-        }
+    private Router() {
     }
+
+    public Meta build(String path) {
+        Class clz = routeMap.get(path);
+        return new Meta(path, clz);
+    }
+
 }

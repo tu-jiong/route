@@ -4,7 +4,9 @@ import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.widget.Button;
+import android.widget.Toast;
 
+import com.jm.library.RouteListener;
 import com.jm.library.Router;
 
 public class MainActivity extends AppCompatActivity {
@@ -17,8 +19,27 @@ public class MainActivity extends AppCompatActivity {
         button.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Router.get().navigation(MainActivity.this, "business/route");
+                Router.get().build("business/route").setRouteListener(new RouteListener() {
+                    @Override
+                    public void onIntercepted() {
+                        toast("被拦截");
+                    }
+
+                    @Override
+                    public void onComplete() {
+                        toast("跳转成功");
+                    }
+
+                    @Override
+                    public void onError(Throwable throwable) {
+                        toast("出错了");
+                    }
+                }).navigation(MainActivity.this);
             }
         });
+    }
+
+    private void toast(String toast) {
+        Toast.makeText(this, toast, Toast.LENGTH_SHORT).show();
     }
 }

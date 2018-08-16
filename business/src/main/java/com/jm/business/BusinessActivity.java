@@ -19,7 +19,7 @@ public class BusinessActivity extends AppCompatActivity {
         button.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Router.get().navigation(BusinessActivity.this, "app/route");
+                Router.get().build("app/route").navigation(BusinessActivity.this);
             }
         });
     }
