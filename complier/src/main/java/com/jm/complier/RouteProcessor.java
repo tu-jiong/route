@@ -20,11 +20,11 @@ import javax.annotation.processing.Messager;
 import javax.annotation.processing.ProcessingEnvironment;
 import javax.annotation.processing.Processor;
 import javax.annotation.processing.RoundEnvironment;
+import javax.annotation.processing.SupportedOptions;
 import javax.lang.model.SourceVersion;
 import javax.lang.model.element.Element;
 import javax.lang.model.element.Modifier;
 import javax.lang.model.element.TypeElement;
-import javax.lang.model.util.Elements;
 import javax.tools.Diagnostic;
 
 /**
@@ -32,10 +32,11 @@ import javax.tools.Diagnostic;
  */
 
 @AutoService(Processor.class)
+@SupportedOptions("moduleName")
 public class RouteProcessor extends AbstractProcessor {
 
+    private String moduleName;
     private Messager messager;
-    private Elements elementUtils;
     private Filer filer;
     private Map<String, String> routeMap;
 
@@ -43,9 +44,18 @@ public class RouteProcessor extends AbstractProcessor {
     public synchronized void init(ProcessingEnvironment processingEnvironment) {
         super.init(processingEnvironment);
         messager = processingEnvironment.getMessager();
-        elementUtils = processingEnvironment.getElementUtils();
         filer = processingEnvironment.getFiler();
         routeMap = new HashMap<>();
+
+        Map<String, String> options = processingEnv.getOptions();
+        if (options != null && !options.isEmpty()) {
+            String name = options.get("moduleName");
+            if (name != null && name.length() > 0) {
+                String c = name.substring(0, 1);
+                moduleName = name.replaceFirst(c, c.toUpperCase());
+                messager.printMessage(Diagnostic.Kind.NOTE, moduleName);
+            }
+        }
     }
 
     @Override
@@ -57,11 +67,8 @@ public class RouteProcessor extends AbstractProcessor {
         if (elements != null) {
             for (Element element : elements) {
                 Path annotation = element.getAnnotation(Path.class);
-
                 routeMap.put(annotation.value(), element.toString());
-
                 brewJava();
-
             }
         }
 
@@ -95,7 +102,8 @@ public class RouteProcessor extends AbstractProcessor {
 
         for (Map.Entry<String, String> entry : routeMap.entrySet()) {
             messager.printMessage(Diagnostic.Kind.NOTE, entry.getKey() + "   " + entry.getValue());
-            ClassName className = ClassName.get("com.jm.route", entry.getValue());
+//            ClassName className = ClassName.get("com.jm.route", entry.getValue());
+            ClassName className = ClassName.get("", entry.getValue());
             loadBuilder.addStatement("map.put($S, $T.class)", entry.getKey(), className);
         }
         MethodSpec create = loadBuilder.build();
@@ -106,7 +114,7 @@ public class RouteProcessor extends AbstractProcessor {
                 .addStatement("return map")
                 .build();
 
-        TypeSpec typeSpec = TypeSpec.classBuilder("DefaultFactory")
+        TypeSpec typeSpec = TypeSpec.classBuilder(moduleName + "Factory")
                 .addModifiers(Modifier.PUBLIC, Modifier.FINAL)
                 .addSuperinterface(ClassName.get("com.jm.library", "Factory"))
                 .addField(map)
@@ -115,7 +123,7 @@ public class RouteProcessor extends AbstractProcessor {
                 .addMethod(get)
                 .build();
 
-        JavaFile javaFile = JavaFile.builder("com.jm.route", typeSpec)
+        JavaFile javaFile = JavaFile.builder("com.jm.route.gen", typeSpec)
                 .build();
 
         try {

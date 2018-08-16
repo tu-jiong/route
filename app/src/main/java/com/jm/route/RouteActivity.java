@@ -5,7 +5,7 @@ import android.support.v7.app.AppCompatActivity;
 
 import com.jm.annotation.Path;
 
-@Path(RoutePath.PATH)
+@Path(RoutePath.ROUTE)
 public class RouteActivity extends AppCompatActivity {
 
     @Override
