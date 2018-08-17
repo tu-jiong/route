@@ -3,7 +3,7 @@
     package="com.jm.business">
 
     <application>
-        <activity android:name=".BusinessActivity"></activity>
+        <activity android:name=".PersonalActivity"></activity>
     </application>
 
 </manifest>

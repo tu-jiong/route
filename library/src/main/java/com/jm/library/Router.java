@@ -18,6 +18,8 @@ public class Router {
 
     private static Map<String, Class> routeMap = new HashMap<>();
 
+    private Parser parser;
+
     private static class Singleton {
         private static final Router sInstance = new Router();
     }
@@ -54,11 +56,17 @@ public class Router {
     }
 
     private Router() {
+
+    }
+
+    public void setParser(Parser parser) {
+        this.parser = parser;
     }
 
     public Meta build(String path) {
-        Class clz = routeMap.get(path);
-        return new Meta(path, clz);
+        if (parser == null) {
+            parser = new DefaultParser(routeMap);
+        }
+        return parser.parse(path);
     }
-
 }

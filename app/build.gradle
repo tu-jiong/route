@@ -29,8 +29,8 @@ dependencies {
     implementation fileTree(include: ['*.jar'], dir: 'libs')
     implementation 'com.android.support:appcompat-v7:27.1.1'
     implementation project(':library')
-    implementation project(':business')
+    implementation project(':user')
     implementation project(':annotation')
-
     annotationProcessor project(':complier')
+    implementation project(':base')
 }

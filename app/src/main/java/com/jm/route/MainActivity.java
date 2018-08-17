@@ -6,6 +6,7 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.Toast;
 
+import com.jm.base.Scheme;
 import com.jm.library.RouteListener;
 import com.jm.library.Router;
 
@@ -15,13 +16,14 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        setTitle("MainActivity");
         Button button = findViewById(R.id.button);
         button.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 Bundle bundle = new Bundle();
-                bundle.putString("key", "来自MainActivity的参数");
-                Router.get().build("business/route").setBundle(bundle).setRouteListener(new RouteListener() {
+                bundle.putString("gender", "男");
+                Router.get().build(Scheme.BUSINESS_ACTIVITY + "?name=张三&age=23").setBundle(bundle).setRouteListener(new RouteListener() {
                     @Override
                     public void onIntercepted() {
                         toast("被拦截");

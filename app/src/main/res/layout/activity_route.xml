@@ -10,13 +10,13 @@
         android:layout_height="wrap_content"
         android:layout_gravity="center"
         android:layout_marginBottom="50dp"
-        android:text="RouteActivity" />
+        android:text="点击按钮跳转到user module PersonalActivity" />
 
     <Button
         android:id="@+id/button"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="center"
-        android:text="拦截路由" />
+        android:text="按钮" />
 
 </FrameLayout>

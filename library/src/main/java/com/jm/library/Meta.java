@@ -1,8 +1,11 @@
 package com.jm.library;
 
+import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.v4.app.ActivityCompat;
+import android.text.TextUtils;
 import android.util.Log;
 
 import java.util.ArrayList;
@@ -15,6 +18,11 @@ public class Meta {
 
     private static final String TAG = Meta.class.getSimpleName();
 
+    private int enterAnim = -1;
+    private int exitAnim = -1;
+    private int requestCode = -1;
+    private int flags = -1;
+    private String action;
     private String path;
     private Class clz;
     private Bundle bundle;
@@ -42,7 +50,31 @@ public class Meta {
     }
 
     public Meta setBundle(Bundle bundle) {
-        this.bundle = bundle;
+        if (this.bundle == null) {
+            this.bundle = new Bundle();
+        }
+        this.bundle.putAll(bundle);
+        return this;
+    }
+
+    public Meta requestCode(int requestCode) {
+        this.requestCode = requestCode;
+        return this;
+    }
+
+    public Meta setFlags(int flags) {
+        this.flags = flags;
+        return this;
+    }
+
+    public Meta setAnim(int enterAnim, int exitAnim) {
+        this.enterAnim = enterAnim;
+        this.exitAnim = exitAnim;
+        return this;
+    }
+
+    public Meta setAction(String action) {
+        this.action = action;
         return this;
     }
 
@@ -67,7 +99,27 @@ public class Meta {
             if (bundle != null) {
                 intent.putExtras(bundle);
             }
-            context.startActivity(intent);
+
+            if (-1 != flags) {
+                intent.setFlags(flags);
+            } else if (!(context instanceof Activity)) {  // Non activity, need flag.
+                intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+            }
+
+            if (!TextUtils.isEmpty(action)) {
+                intent.setAction(action);
+            }
+
+            if (requestCode >= 0 && context instanceof Activity) {
+                ActivityCompat.startActivityForResult((Activity) context, intent, requestCode, bundle);
+            } else {
+                ActivityCompat.startActivity(context, intent, bundle);
+            }
+
+            if ((-1 != enterAnim && -1 != exitAnim && context instanceof Activity)) {  // Old version.
+                ((Activity) context).overridePendingTransition(enterAnim, exitAnim);
+            }
+
             onComplete();
         } catch (Exception e) {
             Log.e(TAG, e.getMessage());

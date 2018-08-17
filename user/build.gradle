@@ -33,4 +33,5 @@ dependencies {
     implementation project(':annotation')
     annotationProcessor project(':complier')
     implementation project(':library')
+    implementation project(':base')
 }
