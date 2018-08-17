@@ -59,11 +59,11 @@ public class Router {
 
     }
 
-    public void setParser(Parser parser) {
+    public synchronized void setParser(Parser parser) {
         this.parser = parser;
     }
 
-    public Meta build(String path) {
+    public synchronized Meta build(String path) {
         if (parser == null) {
             parser = new DefaultParser(routeMap);
         }
