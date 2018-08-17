@@ -25,6 +25,9 @@ import javax.lang.model.SourceVersion;
 import javax.lang.model.element.Element;
 import javax.lang.model.element.Modifier;
 import javax.lang.model.element.TypeElement;
+import javax.lang.model.type.TypeMirror;
+import javax.lang.model.util.Elements;
+import javax.lang.model.util.Types;
 import javax.tools.Diagnostic;
 
 /**
@@ -39,6 +42,8 @@ public class RouteProcessor extends AbstractProcessor {
     private Messager messager;
     private Filer filer;
     private Map<String, String> routeMap;
+    private Elements elementUtils;
+    private Types typeUtils;
 
     @Override
     public synchronized void init(ProcessingEnvironment processingEnvironment) {
@@ -53,22 +58,30 @@ public class RouteProcessor extends AbstractProcessor {
             if (name != null && name.length() > 0) {
                 String c = name.substring(0, 1);
                 moduleName = name.replaceFirst(c, c.toUpperCase());
-                messager.printMessage(Diagnostic.Kind.NOTE, moduleName);
+                messager.printMessage(Diagnostic.Kind.NOTE, "module : " + moduleName);
             }
         }
+
+        elementUtils = processingEnvironment.getElementUtils();
+        typeUtils = processingEnvironment.getTypeUtils();
     }
 
     @Override
     public boolean process(Set<? extends TypeElement> set, RoundEnvironment roundEnvironment) {
-        messager.printMessage(Diagnostic.Kind.NOTE, "process()");
-
         Set<? extends Element> elements = roundEnvironment.getElementsAnnotatedWith(Path.class);
+        TypeMirror activity = elementUtils.getTypeElement("android.app.Activity").asType();
 
         if (elements != null) {
             for (Element element : elements) {
-                Path annotation = element.getAnnotation(Path.class);
-                routeMap.put(annotation.value(), element.toString());
-                brewJava();
+                TypeMirror tm = element.asType();
+                if (typeUtils.isSubtype(tm, activity)) {
+                    TypeElement typeElement = (TypeElement) element;
+                    String qualifiedName = typeElement.getQualifiedName().toString();
+                    messager.printMessage(Diagnostic.Kind.NOTE, "class : " + qualifiedName);
+                    Path annotation = element.getAnnotation(Path.class);
+                    routeMap.put(annotation.value(), qualifiedName);
+                    brewJava();
+                }
             }
         }
 
@@ -101,8 +114,7 @@ public class RouteProcessor extends AbstractProcessor {
                 .returns(void.class);
 
         for (Map.Entry<String, String> entry : routeMap.entrySet()) {
-            messager.printMessage(Diagnostic.Kind.NOTE, entry.getKey() + "   " + entry.getValue());
-//            ClassName className = ClassName.get("com.jm.route", entry.getValue());
+            messager.printMessage(Diagnostic.Kind.NOTE, "route [" + entry.getKey() + " : " + entry.getValue() + "]");
             ClassName className = ClassName.get("", entry.getValue());
             loadBuilder.addStatement("map.put($S, $T.class)", entry.getKey(), className);
         }

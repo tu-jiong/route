@@ -2,6 +2,7 @@ package com.jm.library;
 
 import android.content.Context;
 import android.content.Intent;
+import android.os.Bundle;
 import android.util.Log;
 
 import java.util.ArrayList;
@@ -16,10 +17,11 @@ public class Meta {
 
     private String path;
     private Class clz;
+    private Bundle bundle;
     private List<Interceptor> interceptors;
     private RouteListener routeListener;
 
-    public Meta(String path, Class clz) {
+    Meta(String path, Class clz) {
         this.path = path;
         this.clz = clz;
     }
@@ -36,6 +38,11 @@ public class Meta {
 
     public Meta setRouteListener(RouteListener listener) {
         routeListener = listener;
+        return this;
+    }
+
+    public Meta setBundle(Bundle bundle) {
+        this.bundle = bundle;
         return this;
     }
 
@@ -57,6 +64,9 @@ public class Meta {
 
         try {
             Intent intent = new Intent(context, clz);
+            if (bundle != null) {
+                intent.putExtras(bundle);
+            }
             context.startActivity(intent);
             onComplete();
         } catch (Exception e) {

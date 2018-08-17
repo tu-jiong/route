@@ -19,7 +19,9 @@ public class MainActivity extends AppCompatActivity {
         button.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Router.get().build("business/route").setRouteListener(new RouteListener() {
+                Bundle bundle = new Bundle();
+                bundle.putString("key", "来自MainActivity的参数");
+                Router.get().build("business/route").setBundle(bundle).setRouteListener(new RouteListener() {
                     @Override
                     public void onIntercepted() {
                         toast("被拦截");
